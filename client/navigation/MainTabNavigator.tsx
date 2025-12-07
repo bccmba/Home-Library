@@ -1,14 +1,17 @@
 import React from "react";
+import { View, StyleSheet, Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { Platform, StyleSheet } from "react-native";
-import HomeStackNavigator from "@/navigation/HomeStackNavigator";
+import LibraryStackNavigator from "@/navigation/LibraryStackNavigator";
 import ProfileStackNavigator from "@/navigation/ProfileStackNavigator";
+import ScanScreen from "@/screens/ScanScreen";
 import { useTheme } from "@/hooks/useTheme";
+import { Colors, Shadows } from "@/constants/theme";
 
 export type MainTabParamList = {
-  HomeTab: undefined;
+  LibraryTab: undefined;
+  ScanTab: undefined;
   ProfileTab: undefined;
 };
 
@@ -16,12 +19,13 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function MainTabNavigator() {
   const { theme, isDark } = useTheme();
+  const colors = isDark ? Colors.dark : Colors.light;
 
   return (
     <Tab.Navigator
-      initialRouteName="HomeTab"
+      initialRouteName="LibraryTab"
       screenOptions={{
-        tabBarActiveTintColor: theme.tabIconSelected,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarStyle: {
           position: "absolute",
@@ -44,12 +48,31 @@ export default function MainTabNavigator() {
       }}
     >
       <Tab.Screen
-        name="HomeTab"
-        component={HomeStackNavigator}
+        name="LibraryTab"
+        component={LibraryStackNavigator}
         options={{
-          title: "Home",
+          title: "Library",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="home" size={size} color={color} />
+            <Feather name="book-open" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ScanTab"
+        component={ScanScreen}
+        options={{
+          title: "Scan",
+          tabBarIcon: ({ color, size, focused }) => (
+            <View
+              style={[
+                styles.scanButton,
+                {
+                  backgroundColor: focused ? colors.primary : colors.accent,
+                },
+              ]}
+            >
+              <Feather name="camera" size={size} color="#FFFFFF" />
+            </View>
           ),
         }}
       />
@@ -66,3 +89,15 @@ export default function MainTabNavigator() {
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  scanButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    ...Shadows.small,
+  },
+});
