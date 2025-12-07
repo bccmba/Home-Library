@@ -1,0 +1,56 @@
+# My Home Library – Full Product Requirements Document (PRD)  
+Ready to copy-paste straight into Replit Agent
+
+### 1. Product Goal
+A beautiful, mobile-first personal home library where anyone can scan a book barcode with their phone → instantly see the cover and details → and drop it onto one of their virtual “bookcases.” Zero typing, works offline after first load, feels magical.
+
+### 2. Target Users & Pain Point
+- Book lovers who own 50–5000 physical books  
+- Tired of spreadsheets or clunky apps that require manual entry  
+- Want to see their actual shelves digitally and know “where is my copy of Dune?”
+
+### 3. Core User Stories (MVP – must be in v1)
+1. As a user, I open the app on my phone and immediately see “Scan a book” button.  
+2. As a user, I tap Scan → use camera → barcode is detected → book info + cover appears in <2 sec.  
+3. As a user, I tap “Add to shelf” → choose or create a bookcase (e.g., “Kids Room”, “Office Oak”) → book is saved forever.  
+4. As a user, I can open any bookcase and see a gorgeous responsive grid of covers (like Netflix).  
+5. As a user, I can tap any cover to see full details + edit shelf location or add personal notes.  
+6. As a user, the app works 100 % offline after the first visit (PWA + IndexedDB).
+
+### 4. Stretch / Nice-to-Have (v2 – can be added later)
+- Search & filter  
+- Wishlist shelf  
+- Dark mode toggle  
+- Export / backup to JSON  
+- Manual entry fallback  
+- Multiple users / family sharing
+
+### 5. Tech Stack (Replit-perfect, zero config)
+- Frontend: HTML + Tailwind CSS + Vanilla JS (or React if Agent prefers – both fine)  
+- Barcode scanning: Quagga2 or ZXing JS library (camera → instant)  
+- Book data: Google Books API (free, no key needed for ISBN lookup)  
+  → https://www.googleapis.com/books/v1/volumes?q=isbn:9780140328721  
+- Storage: IndexedDB via idb library (offline-first)  
+- Hosting: Replit one-click deploy + custom domain ready  
+- PWA: Manifest + service worker so it installs on phone home screen
+
+### 6. Data Model (super simple)
+```json
+// Book object
+{
+  isbn: "9780140328721",
+  title: "James and the Giant Peach",
+  authors: ["Roald Dahl"],
+  cover: "https://books.google.com/...jpg",
+  pageCount: 176,
+  publishedYear: 1961,
+  shelf: "Kids Room",
+  notes: "Read aloud to Leo in 2024",
+  addedAt: "2025-12-07"
+}
+
+// Shelf object
+{
+  name: "Kids Room",
+  createdAt: "2025-12-07"
+}
