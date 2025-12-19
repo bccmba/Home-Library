@@ -6,6 +6,8 @@ import {
   Platform,
   Linking,
   ActivityIndicator,
+  TextInput,
+  Modal,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
@@ -27,6 +29,7 @@ import { Button } from "@/components/Button";
 import { useTheme } from "@/hooks/useTheme";
 import { Colors, Spacing, BorderRadius } from "@/constants/theme";
 import { RootStackParamList } from "@/navigation/RootStackNavigator";
+import { useLibraryStore } from "@/store/libraryStore";
 
 const RETICLE_WIDTH = 280;
 const RETICLE_HEIGHT = 160;
@@ -93,32 +96,70 @@ export default function ScanScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const isFocused = useIsFocused();
+  const { books } = useLibraryStore();
 
   const [permission, requestPermission] = useCameraPermissions();
   const [isScanning, setIsScanning] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [manualISBN, setManualISBN] = useState("");
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+  const [pendingBookInfo, setPendingBookInfo] = useState<any>(null);
+
+  const checkDuplicate = (isbn: string) => {
+    return books.some((book) => book.isbn === isbn);
+  };
 
   const handleBarCodeScanned = async (result: BarcodeScanningResult) => {
     if (!isScanning || isLoading) return;
 
     const { data, type } = result;
     if (type === "ean13" || type === "ean8" || type === "upc_a" || type === "upc_e") {
-      setIsScanning(false);
-      setIsLoading(true);
-
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      const bookInfo = await fetchBookInfo(data);
-
-      if (bookInfo) {
-        navigation.navigate("BookPreview", bookInfo);
-      } else {
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        setIsScanning(true);
-      }
-
-      setIsLoading(false);
+      await processISBN(data);
     }
+  };
+
+  const processISBN = async (isbn: string) => {
+    setIsScanning(false);
+    setIsLoading(true);
+
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    const bookInfo = await fetchBookInfo(isbn);
+
+    if (bookInfo) {
+      const isDuplicate = checkDuplicate(isbn);
+      if (isDuplicate) {
+        setPendingBookInfo(bookInfo);
+        setShowDuplicateWarning(true);
+      } else {
+        navigation.navigate("BookPreview", bookInfo);
+      }
+    } else {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setIsScanning(true);
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleManualEntrySubmit = async () => {
+    if (!manualISBN.trim()) return;
+    setShowManualEntry(false);
+    setManualISBN("");
+    await processISBN(manualISBN.trim());
+  };
+
+  const handleDuplicateConfirm = () => {
+    setShowDuplicateWarning(false);
+    navigation.navigate("BookPreview", pendingBookInfo);
+    setPendingBookInfo(null);
+  };
+
+  const handleDuplicateSkip = () => {
+    setShowDuplicateWarning(false);
+    setPendingBookInfo(null);
+    setIsScanning(true);
   };
 
   useEffect(() => {
@@ -224,9 +265,115 @@ export default function ScanScreen() {
                 Looking up book...
               </ThemedText>
             </View>
-          ) : null}
+          ) : (
+            <Pressable
+              style={[styles.manualEntryButton, { backgroundColor: colors.primary }]}
+              onPress={() => setShowManualEntry(true)}
+            >
+              <Feather name="type" size={18} color="#FFFFFF" />
+              <ThemedText type="body" style={styles.manualEntryButtonText}>
+                Manual Entry
+              </ThemedText>
+            </Pressable>
+          )}
         </View>
       </View>
+
+      <Modal
+        visible={showManualEntry}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowManualEntry(false)}
+      >
+        <ThemedView style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <ThemedText type="h3" style={styles.modalTitle}>
+              Enter ISBN Manually
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.isbnInput,
+                {
+                  backgroundColor: theme.backgroundDefault,
+                  color: theme.text,
+                  borderColor: colors.border,
+                },
+              ]}
+              value={manualISBN}
+              onChangeText={setManualISBN}
+              placeholder="Enter ISBN number"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="number-pad"
+              editable={!isLoading}
+            />
+            <View style={styles.modalButtonContainer}>
+              <Button
+                onPress={() => {
+                  setShowManualEntry(false);
+                  setManualISBN("");
+                }}
+                style={[styles.modalButton, { opacity: isLoading ? 0.5 : 1 }]}
+              >
+                Cancel
+              </Button>
+              <Button
+                onPress={handleManualEntrySubmit}
+                style={[styles.modalButton, { opacity: !manualISBN.trim() || isLoading ? 0.5 : 1 }]}
+                disabled={!manualISBN.trim() || isLoading}
+              >
+                {isLoading ? "Loading..." : "Search"}
+              </Button>
+            </View>
+          </View>
+        </ThemedView>
+      </Modal>
+
+      <Modal
+        visible={showDuplicateWarning}
+        transparent
+        animationType="fade"
+        onRequestClose={() => handleDuplicateSkip()}
+      >
+        <ThemedView style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Feather
+              name="alert-circle"
+              size={48}
+              color={colors.primary}
+              style={{ marginBottom: Spacing.lg }}
+            />
+            <ThemedText type="h3" style={styles.modalTitle}>
+              Book Already Added
+            </ThemedText>
+            <ThemedText
+              type="body"
+              style={[styles.modalMessage, { color: colors.textSecondary }]}
+            >
+              You already have "{pendingBookInfo?.title}" in your library.
+            </ThemedText>
+            <ThemedText
+              type="small"
+              style={[styles.modalSubtext, { color: colors.textSecondary }]}
+            >
+              Would you like to add another copy?
+            </ThemedText>
+            <View style={styles.modalButtonContainer}>
+              <Button
+                onPress={handleDuplicateSkip}
+                style={[styles.modalButton, { opacity: 0.7 }]}
+              >
+                Skip
+              </Button>
+              <Button
+                onPress={handleDuplicateConfirm}
+                style={styles.modalButton}
+              >
+                Add Copy
+              </Button>
+            </View>
+          </View>
+        </ThemedView>
+      </Modal>
     </View>
   );
 }
@@ -331,5 +478,58 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: "#FFFFFF",
+  },
+  manualEntryButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
+  },
+  manualEntryButtonText: {
+    color: "#FFFFFF",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: Spacing.lg,
+  },
+  modalContent: {
+    maxWidth: 350,
+    width: "100%",
+    borderRadius: BorderRadius.lg,
+    padding: Spacing["2xl"],
+    alignItems: "center",
+  },
+  modalTitle: {
+    marginBottom: Spacing.lg,
+    textAlign: "center",
+  },
+  modalMessage: {
+    marginBottom: Spacing.md,
+    textAlign: "center",
+  },
+  modalSubtext: {
+    marginBottom: Spacing["2xl"],
+    textAlign: "center",
+  },
+  isbnInput: {
+    width: "100%",
+    borderWidth: 1,
+    borderRadius: BorderRadius.sm,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    fontSize: 16,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    gap: Spacing.md,
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
   },
 });
