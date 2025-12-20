@@ -377,12 +377,20 @@ function configureExpoAndLanding(app2) {
   log("Expo routing: Checking expo-platform header on / and /manifest");
 }
 function setupErrorHandler(app2) {
-  app2.use((err, _req, res, _next) => {
+  app2.use((err, req, res, next) => {
     const error = err;
+    if (res.headersSent) {
+      return next(err);
+    }
     const status = error.status || error.statusCode || 500;
     const message = error.message || "Internal Server Error";
+    console.error("Unhandled error:", {
+      method: req.method,
+      path: req.path,
+      status,
+      message
+    });
     res.status(status).json({ message });
-    throw err;
   });
 }
 (async () => {
