@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   StyleSheet,
-  Image,
   Pressable,
   Alert,
 } from "react-native";
@@ -23,12 +22,6 @@ import { Colors, Spacing, BorderRadius } from "@/constants/theme";
 import { useLibraryStore } from "@/store/libraryStore";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const AVATARS = [
-  require("../assets/images/avatar-reader.png"),
-  require("../assets/images/avatar-books.png"),
-  require("../assets/images/avatar-bookworm.png"),
-];
 
 function SettingsRow({
   icon,
@@ -106,11 +99,6 @@ export default function ProfileScreen() {
   const colors = isDark ? Colors.dark : Colors.light;
 
   const { books, shelves, clearAll } = useLibraryStore();
-  const [avatarIndex, setAvatarIndex] = useState(0);
-
-  const handleAvatarPress = () => {
-    setAvatarIndex((prev) => (prev + 1) % AVATARS.length);
-  };
 
   const handleClearAll = () => {
     Alert.alert(
@@ -151,21 +139,11 @@ export default function ProfileScreen() {
       scrollIndicatorInsets={{ bottom: insets.bottom }}
     >
       <View style={styles.profileSection}>
-        <Pressable onPress={handleAvatarPress}>
-          <Image
-            source={AVATARS[avatarIndex]}
-            style={[
-              styles.avatar,
-              { borderColor: colors.primary },
-            ]}
-            resizeMode="cover"
-          />
-        </Pressable>
+        <View style={[styles.avatar, { backgroundColor: colors.secondary, borderColor: colors.primary }]}>
+          <Feather name="book-open" size={40} color={colors.primary} />
+        </View>
         <ThemedText type="h3" style={styles.displayName}>
           My Library
-        </ThemedText>
-        <ThemedText type="small" style={{ color: colors.textSecondary }}>
-          Tap avatar to change
         </ThemedText>
       </View>
 

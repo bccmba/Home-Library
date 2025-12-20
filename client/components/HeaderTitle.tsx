@@ -1,21 +1,22 @@
 import React from "react";
-import { View, StyleSheet, Image } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 import { ThemedText } from "@/components/ThemedText";
-import { Spacing } from "@/constants/theme";
+import { Spacing, Colors } from "@/constants/theme";
+import { useTheme } from "@/hooks/useTheme";
 
 interface HeaderTitleProps {
   title: string;
 }
 
 export function HeaderTitle({ title }: HeaderTitleProps) {
+  const { isDark } = useTheme();
+  const colors = isDark ? Colors.dark : Colors.light;
+
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../assets/images/avatar-books.png")}
-        style={styles.icon}
-        resizeMode="contain"
-      />
+      <Feather name="book" size={24} color={colors.primary} style={styles.icon} />
       <ThemedText style={styles.title}>{title}</ThemedText>
     </View>
   );
@@ -28,10 +29,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   icon: {
-    width: 28,
-    height: 28,
     marginRight: Spacing.sm,
-    borderRadius: 14,
   },
   title: {
     fontSize: 17,
