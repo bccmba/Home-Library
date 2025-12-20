@@ -33,45 +33,66 @@ let globalState: LibraryState = {
 };
 
 let listeners: Set<() => void> = new Set();
-let initialized = false;
+let initCompleted = false;
+let initInFlight: Promise<void> | null = null;
 
 function notifyListeners() {
   listeners.forEach((listener) => listener());
 }
 
 async function fetchInitialData() {
-  if (initialized) return;
-  initialized = true;
+  if (initCompleted) return;
+  if (initInFlight) return initInFlight;
 
-  try {
-    const [shelvesRes, booksRes] = await Promise.all([
-      fetch(new URL("/api/shelves", getApiUrl()).toString()),
-      fetch(new URL("/api/books", getApiUrl()).toString()),
-    ]);
+  // Mark loading true on first load and on retries
+  globalState = { ...globalState, isLoading: true };
+  notifyListeners();
 
-    const shelves = await shelvesRes.json();
-    const books = await booksRes.json();
+  initInFlight = (async () => {
+    try {
+      const [shelvesRes, booksRes] = await Promise.all([
+        fetch(new URL("/api/shelves", getApiUrl()).toString()),
+        fetch(new URL("/api/books", getApiUrl()).toString()),
+      ]);
 
-    globalState = {
-      shelves: shelves.map((s: any) => ({
-        ...s,
-        createdAt: s.createdAt || s.created_at,
-      })),
-      books: books.map((b: any) => ({
-        ...b,
-        shelfId: b.shelfId || b.shelf_id,
-        pageCount: b.pageCount || b.page_count,
-        publishedYear: b.publishedYear || b.published_year,
-        addedAt: b.addedAt || b.added_at,
-      })),
-      isLoading: false,
-    };
-    notifyListeners();
-  } catch (error) {
-    console.error("Failed to fetch library data:", error);
-    globalState = { ...globalState, isLoading: false };
-    notifyListeners();
-  }
+      if (!shelvesRes.ok) {
+        throw new Error(`Failed to fetch shelves: ${shelvesRes.status}`);
+      }
+      if (!booksRes.ok) {
+        throw new Error(`Failed to fetch books: ${booksRes.status}`);
+      }
+
+      const shelves = await shelvesRes.json();
+      const books = await booksRes.json();
+
+      globalState = {
+        shelves: shelves.map((s: any) => ({
+          ...s,
+          createdAt: s.createdAt || s.created_at,
+        })),
+        books: books.map((b: any) => ({
+          ...b,
+          shelfId: b.shelfId || b.shelf_id,
+          pageCount: b.pageCount || b.page_count,
+          publishedYear: b.publishedYear || b.published_year,
+          addedAt: b.addedAt || b.added_at,
+        })),
+        isLoading: false,
+      };
+
+      initCompleted = true;
+      notifyListeners();
+    } catch (error) {
+      // Allow future retries if the initial load fails (e.g., network/env issues).
+      console.error("Failed to fetch library data:", error);
+      globalState = { ...globalState, isLoading: false };
+      initCompleted = false;
+      initInFlight = null;
+      notifyListeners();
+    }
+  })();
+
+  return initInFlight;
 }
 
 export function useLibraryStore() {
