@@ -12,6 +12,7 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Feather } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -79,11 +80,9 @@ function EmptyShelfState() {
 
   return (
     <View style={styles.emptyState}>
-      <Image
-        source={require("../assets/images/empty-shelf.png")}
-        style={styles.emptyImage}
-        resizeMode="contain"
-      />
+      <View style={[styles.emptyIconContainer, { backgroundColor: colors.secondary }]}>
+        <Feather name="book-open" size={60} color={colors.primary} />
+      </View>
       <ThemedText type="h4" style={styles.emptyTitle}>
         This shelf is empty
       </ThemedText>
@@ -187,9 +186,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: Spacing["5xl"],
   },
-  emptyImage: {
-    width: 180,
-    height: 180,
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing["2xl"],
   },
   emptyTitle: {

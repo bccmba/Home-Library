@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView, StyleSheet, Image, Pressable } from "react-native";
+import { View, ScrollView, StyleSheet, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -137,11 +137,9 @@ function EmptyLibraryState() {
 
   return (
     <View style={styles.emptyState}>
-      <Image
-        source={require("../assets/images/empty-shelves.png")}
-        style={styles.emptyImage}
-        resizeMode="contain"
-      />
+      <View style={[styles.emptyIconContainer, { backgroundColor: colors.secondary }]}>
+        <Feather name="grid" size={80} color={colors.primary} />
+      </View>
       <ThemedText type="h3" style={styles.emptyTitle}>
         Welcome to Your Library
       </ThemedText>
