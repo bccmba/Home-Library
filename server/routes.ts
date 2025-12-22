@@ -94,6 +94,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/books/:id/read-status", async (req, res) => {
+    try {
+      const { isRead } = req.body;
+      if (typeof isRead !== "boolean") {
+        return res.status(400).json({ error: "isRead must be a boolean" });
+      }
+      const book = await storage.updateBookReadStatus(req.params.id, isRead);
+      if (!book) {
+        return res.status(404).json({ error: "Book not found" });
+      }
+      res.json(book);
+    } catch (error) {
+      console.error("Error updating book read status:", error);
+      res.status(500).json({ error: "Failed to update book read status" });
+    }
+  });
+
   app.patch("/api/books/:id/shelf", async (req, res) => {
     try {
       const { shelfId } = req.body;

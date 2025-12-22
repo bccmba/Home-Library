@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  varchar,
+  integer,
+  timestamp,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -21,7 +28,10 @@ export const books = pgTable("books", {
   cover: text("cover").notNull(),
   pageCount: integer("page_count"),
   publishedYear: text("published_year"),
-  shelfId: varchar("shelf_id").notNull().references(() => shelves.id, { onDelete: "cascade" }),
+  shelfId: varchar("shelf_id")
+    .notNull()
+    .references(() => shelves.id, { onDelete: "cascade" }),
+  isRead: boolean("is_read").default(false).notNull(),
   notes: text("notes").default("").notNull(),
   addedAt: timestamp("added_at").defaultNow().notNull(),
 });
@@ -38,6 +48,7 @@ export const insertBookSchema = createInsertSchema(books).pick({
   pageCount: true,
   publishedYear: true,
   shelfId: true,
+  isRead: true,
   notes: true,
 });
 

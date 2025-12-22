@@ -34,13 +34,10 @@ function StatCard({
   const colors = isDark ? Colors.dark : Colors.light;
 
   return (
-    <View
-      style={[
-        styles.statCard,
-        { backgroundColor: colors.secondary },
-      ]}
-    >
-      <View style={[styles.statIconContainer, { backgroundColor: colors.primary }]}>
+    <View style={[styles.statCard, { backgroundColor: colors.secondary }]}>
+      <View
+        style={[styles.statIconContainer, { backgroundColor: colors.primary }]}
+      >
         <Feather name={icon} size={18} color="#FFFFFF" />
       </View>
       <ThemedText type="h3" style={styles.statValue}>
@@ -118,10 +115,7 @@ function ShelfPreviewCard({
           ))}
           {shelfBooks.length > 5 ? (
             <View
-              style={[
-                styles.moreBooks,
-                { backgroundColor: colors.secondary },
-              ]}
+              style={[styles.moreBooks, { backgroundColor: colors.secondary }]}
             >
               <ThemedText type="small">+{shelfBooks.length - 5}</ThemedText>
             </View>
@@ -174,7 +168,9 @@ export default function LibraryHomeScreen() {
   const { shelves, books } = useLibraryStore();
 
   const recentBooks = [...books]
-    .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+    .sort(
+      (a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime(),
+    )
     .slice(0, 5);
 
   return (

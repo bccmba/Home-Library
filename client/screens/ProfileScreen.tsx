@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  View,
-  StyleSheet,
-  Pressable,
-  Alert,
-} from "react-native";
+import { View, StyleSheet, Pressable, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -84,7 +79,11 @@ function SettingsRow({
           </ThemedText>
         ) : null}
         {onPress ? (
-          <Feather name="chevron-right" size={18} color={colors.textSecondary} />
+          <Feather
+            name="chevron-right"
+            size={18}
+            color={colors.textSecondary}
+          />
         ) : null}
       </View>
     </AnimatedPressable>
@@ -120,11 +119,11 @@ export default function ProfileScreen() {
                   style: "destructive",
                   onPress: clearAll,
                 },
-              ]
+              ],
             );
           },
         },
-      ]
+      ],
     );
   };
 
@@ -139,7 +138,12 @@ export default function ProfileScreen() {
       scrollIndicatorInsets={{ bottom: insets.bottom }}
     >
       <View style={styles.profileSection}>
-        <View style={[styles.avatar, { backgroundColor: colors.secondary, borderColor: colors.primary }]}>
+        <View
+          style={[
+            styles.avatar,
+            { backgroundColor: colors.secondary, borderColor: colors.primary },
+          ]}
+        >
           <Feather name="book-open" size={40} color={colors.primary} />
         </View>
         <ThemedText type="h3" style={styles.displayName}>
@@ -177,7 +181,11 @@ export default function ProfileScreen() {
         </ThemedText>
         <View style={styles.settingsGroup}>
           <SettingsRow icon="info" label="Version" value="1.0.0" />
-          <SettingsRow icon="heart" label="Made with love" value="for book lovers" />
+          <SettingsRow
+            icon="heart"
+            label="Made with love"
+            value="for book lovers"
+          />
         </View>
       </View>
 
