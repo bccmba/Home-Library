@@ -2,6 +2,7 @@ import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 
 const mockUpdateBookReadStatus = jest.fn();
+const mockNavigate = jest.fn();
 
 jest.mock("@expo/vector-icons", () => ({
   Feather: () => null,
@@ -26,7 +27,7 @@ jest.mock("expo-linear-gradient", () => ({
 let mockRouteParams: any = null;
 jest.mock("@react-navigation/native", () => {
   return {
-    useNavigation: () => ({ goBack: jest.fn() }),
+    useNavigation: () => ({ goBack: jest.fn(), navigate: mockNavigate }),
     useRoute: () => ({ params: mockRouteParams }),
   };
 });
@@ -71,6 +72,7 @@ jest.mock("@/hooks/useTheme", () => ({
 describe("BookDetailScreen (Reading Status)", () => {
   beforeEach(() => {
     mockUpdateBookReadStatus.mockClear();
+    mockNavigate.mockClear();
     mockRouteParams = { bookId: "book-1" };
   });
 
@@ -92,5 +94,15 @@ describe("BookDetailScreen (Reading Status)", () => {
 
     fireEvent.press(getByText("Not read"));
     expect(mockUpdateBookReadStatus).toHaveBeenCalledWith("book-1", false);
+  });
+
+  it("navigates to MoveBook when 'Move to Shelf' pressed", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Screen = require("@/screens/BookDetailScreen")
+      .default as React.ComponentType;
+    const { getByText } = render(<Screen />);
+
+    fireEvent.press(getByText("Move to Shelf"));
+    expect(mockNavigate).toHaveBeenCalledWith("MoveBook", { bookId: "book-1" });
   });
 });

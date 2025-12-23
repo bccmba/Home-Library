@@ -21,7 +21,7 @@ import Animated, {
 
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
+import { Colors, Spacing, BorderRadius, Shadows } from "@/constants/theme";
 import { LibraryStackParamList } from "@/navigation/LibraryStackNavigator";
 import { useLibraryStore, Book } from "@/store/libraryStore";
 
@@ -76,11 +76,17 @@ function BookCoverCard({
 }
 
 function EmptyShelfState() {
-  const { theme } = useTheme();
+  const { theme, isDark } = useTheme();
+  const colors = isDark ? Colors.dark : Colors.light;
 
   return (
     <View style={styles.emptyState}>
-      <View style={[styles.emptyIconContainer, { backgroundColor: colors.secondary }]}>
+      <View
+        style={[
+          styles.emptyIconContainer,
+          { backgroundColor: colors.secondary },
+        ]}
+      >
         <Feather name="book-open" size={60} color={colors.primary} />
       </View>
       <ThemedText type="h4" style={styles.emptyTitle}>

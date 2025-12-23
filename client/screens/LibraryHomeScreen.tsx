@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView, StyleSheet, Pressable } from "react-native";
+import { View, ScrollView, StyleSheet, Pressable, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -137,7 +137,12 @@ function EmptyLibraryState() {
 
   return (
     <View style={styles.emptyState}>
-      <View style={[styles.emptyIconContainer, { backgroundColor: colors.secondary }]}>
+      <View
+        style={[
+          styles.emptyIconContainer,
+          { backgroundColor: colors.secondary },
+        ]}
+      >
         <Feather name="grid" size={80} color={colors.primary} />
       </View>
       <ThemedText type="h3" style={styles.emptyTitle}>
@@ -281,9 +286,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: Spacing["5xl"],
   },
-  emptyImage: {
-    width: 200,
-    height: 200,
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing["2xl"],
   },
   emptyTitle: {

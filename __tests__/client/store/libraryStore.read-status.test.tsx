@@ -172,4 +172,81 @@ describe("client/store/libraryStore (isRead)", () => {
     );
     expect(latest.books[0].isRead).toBe(true);
   });
+
+  it("updates shelf locally after API call", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { apiRequest } = require("@/lib/query-client") as {
+      apiRequest: jest.Mock;
+    };
+
+    const { useLibraryStore } =
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("@/store/libraryStore") as typeof import("@/store/libraryStore");
+
+    (global.fetch as any) = jest
+      .fn()
+      .mockResolvedValueOnce({ json: async () => [] })
+      .mockResolvedValueOnce({ json: async () => [] });
+
+    let latest: any = null;
+    function Harness({ onUpdate }: { onUpdate: (s: any) => void }) {
+      const store = useLibraryStore();
+      useEffect(() => {
+        onUpdate(store);
+      }, [store, onUpdate]);
+      return null;
+    }
+
+    apiRequest.mockImplementation(async (method: string, route: string) => {
+      if (method === "DELETE" && route === "/api/library") return {};
+      if (method === "POST" && route === "/api/books") {
+        return {
+          json: async () => ({
+            id: "book-1",
+            isbn: "x",
+            title: "t",
+            authors: ["a"],
+            cover: "c",
+            shelf_id: "shelf-1",
+            is_read: false,
+            notes: "",
+            added_at: new Date().toISOString(),
+          }),
+        };
+      }
+      if (method === "PATCH" && route === "/api/books/book-1/shelf") return {};
+      throw new Error(`Unexpected apiRequest: ${method} ${route}`);
+    });
+
+    render(<Harness onUpdate={(s) => (latest = s)} />);
+
+    await act(async () => {
+      await latest.clearAll();
+    });
+
+    await act(async () => {
+      await latest.addBook({
+        isbn: "x",
+        title: "t",
+        authors: ["a"],
+        cover: "c",
+        shelfId: "shelf-1",
+        isRead: false,
+        notes: "",
+      });
+    });
+
+    expect(latest.books[0].shelfId).toBe("shelf-1");
+
+    await act(async () => {
+      await latest.updateBookShelf("book-1", "shelf-2");
+    });
+
+    expect(apiRequest).toHaveBeenCalledWith(
+      "PATCH",
+      "/api/books/book-1/shelf",
+      { shelfId: "shelf-2" },
+    );
+    expect(latest.books[0].shelfId).toBe("shelf-2");
+  });
 });

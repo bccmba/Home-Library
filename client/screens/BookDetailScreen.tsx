@@ -156,6 +156,13 @@ export default function BookDetailScreen() {
           <InfoRow icon="grid" label="Shelf" value={shelf?.name || "Unknown"} />
         </View>
 
+        <Button
+          style={styles.moveButton}
+          onPress={() => navigation.navigate("MoveBook", { bookId: book.id })}
+        >
+          Move to Shelf
+        </Button>
+
         <View style={styles.readStatusSection}>
           <View style={styles.noteHeader}>
             <ThemedText type="h4">Reading Status</ThemedText>
@@ -306,6 +313,9 @@ const styles = StyleSheet.create({
   },
   infoSection: {
     gap: Spacing.md,
+    marginBottom: Spacing["2xl"],
+  },
+  moveButton: {
     marginBottom: Spacing["2xl"],
   },
   infoRow: {
