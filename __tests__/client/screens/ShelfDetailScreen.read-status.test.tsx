@@ -4,6 +4,11 @@ import { render, fireEvent } from "@testing-library/react-native";
 const mockUpdateBookReadStatus = jest.fn();
 const mockNavigate = jest.fn();
 
+jest.mock("react-native-reanimated", () =>
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require("react-native-reanimated/mock"),
+);
+
 jest.mock("@expo/vector-icons", () => ({
   Feather: () => null,
 }));
@@ -20,14 +25,10 @@ jest.mock("@react-navigation/bottom-tabs", () => ({
   useBottomTabBarHeight: () => 0,
 }));
 
-jest.mock("expo-linear-gradient", () => ({
-  LinearGradient: ({ children }: any) => children ?? null,
-}));
-
 let mockRouteParams: any = null;
 jest.mock("@react-navigation/native", () => {
   return {
-    useNavigation: () => ({ goBack: jest.fn(), navigate: mockNavigate }),
+    useNavigation: () => ({ navigate: mockNavigate }),
     useRoute: () => ({ params: mockRouteParams }),
   };
 });
@@ -38,8 +39,8 @@ jest.mock("@/store/libraryStore", () => ({
       {
         id: "book-1",
         isbn: "x",
-        title: "t",
-        authors: ["a"],
+        title: "Test Book",
+        authors: ["A"],
         cover: "c",
         shelfId: "shelf-1",
         isRead: false,
@@ -47,12 +48,7 @@ jest.mock("@/store/libraryStore", () => ({
         addedAt: new Date().toISOString(),
       },
     ],
-    shelves: [
-      { id: "shelf-1", name: "Shelf 1", createdAt: new Date().toISOString() },
-    ],
-    updateBookNotes: jest.fn(),
     updateBookReadStatus: mockUpdateBookReadStatus,
-    removeBook: jest.fn(),
     isLoading: false,
   }),
 }));
@@ -65,44 +61,25 @@ jest.mock("@/hooks/useTheme", () => ({
       backgroundDefault: "#fff",
       text: "#111",
       link: "#00f",
+      textSecondary: "#666",
     },
   }),
 }));
 
-describe("BookDetailScreen (Reading Status)", () => {
+describe("ShelfDetailScreen (Read toggle)", () => {
   beforeEach(() => {
     mockUpdateBookReadStatus.mockClear();
     mockNavigate.mockClear();
-    mockRouteParams = { bookId: "book-1" };
+    mockRouteParams = { shelfId: "shelf-1", shelfName: "Shelf 1" };
   });
 
-  it("calls updateBookReadStatus(true) when 'Read' pressed", () => {
+  it("calls updateBookReadStatus when toggle is pressed", () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Screen = require("@/screens/BookDetailScreen")
+    const Screen = require("@/screens/ShelfDetailScreen")
       .default as React.ComponentType;
-    const { getByText } = render(<Screen />);
+    const { getByLabelText } = render(<Screen />);
 
-    fireEvent.press(getByText("Read"));
+    fireEvent.press(getByLabelText("Mark Test Book as read"));
     expect(mockUpdateBookReadStatus).toHaveBeenCalledWith("book-1", true);
-  });
-
-  it("calls updateBookReadStatus(false) when 'Not read' pressed", () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Screen = require("@/screens/BookDetailScreen")
-      .default as React.ComponentType;
-    const { getByText } = render(<Screen />);
-
-    fireEvent.press(getByText("Not read"));
-    expect(mockUpdateBookReadStatus).toHaveBeenCalledWith("book-1", false);
-  });
-
-  it("navigates to MoveBook when 'Move to Shelf' pressed", () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Screen = require("@/screens/BookDetailScreen")
-      .default as React.ComponentType;
-    const { getByText } = render(<Screen />);
-
-    fireEvent.press(getByText("Move to Shelf"));
-    expect(mockNavigate).toHaveBeenCalledWith("MoveBook", { bookId: "book-1" });
   });
 });

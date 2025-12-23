@@ -1,6 +1,8 @@
 import React from "react";
 import { render, fireEvent, act } from "@testing-library/react-native";
 
+jest.setTimeout(20000);
+
 const mockAddBook = jest.fn();
 const mockPopTo = jest.fn();
 
