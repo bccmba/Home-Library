@@ -30,12 +30,16 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 function BookCoverCard({
   book,
   onPress,
+  onToggleRead,
   width,
 }: {
   book: Book;
   onPress: () => void;
+  onToggleRead: () => void;
   width: number;
 }) {
+  const { isDark } = useTheme();
+  const colors = isDark ? Colors.dark : Colors.light;
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -60,11 +64,37 @@ function BookCoverCard({
       style={[styles.bookCard, { width }, animatedStyle]}
       accessibilityLabel={`${book.title} by ${book.authors.join(", ")}`}
     >
-      <Image
-        source={{ uri: book.cover }}
-        style={[styles.bookCover, { height: coverHeight }]}
-        resizeMode="cover"
-      />
+      <View>
+        <Image
+          source={{ uri: book.cover }}
+          style={[styles.bookCover, { height: coverHeight }]}
+          resizeMode="cover"
+        />
+        <Pressable
+          onPress={onToggleRead}
+          style={[
+            styles.readToggle,
+            {
+              backgroundColor: book.isRead
+                ? colors.primary
+                : colors.backgroundDefault,
+              borderColor: book.isRead ? colors.primary : colors.border,
+            },
+          ]}
+          accessibilityLabel={
+            book.isRead
+              ? `Mark ${book.title} as not read`
+              : `Mark ${book.title} as read`
+          }
+          hitSlop={10}
+        >
+          <Feather
+            name={book.isRead ? "check" : "circle"}
+            size={16}
+            color={book.isRead ? "#FFFFFF" : colors.textSecondary}
+          />
+        </Pressable>
+      </View>
       <ThemedText type="small" numberOfLines={2} style={styles.bookTitle}>
         {book.title}
       </ThemedText>
@@ -112,7 +142,7 @@ export default function ShelfDetailScreen() {
     useNavigation<NativeStackNavigationProp<LibraryStackParamList>>();
   const route = useRoute<RouteProp<LibraryStackParamList, "ShelfDetail">>();
 
-  const { books } = useLibraryStore();
+  const { books, updateBookReadStatus } = useLibraryStore();
   const shelfBooks = books.filter((b) => b.shelfId === route.params.shelfId);
 
   const numColumns = 2;
@@ -123,6 +153,7 @@ export default function ShelfDetailScreen() {
     <BookCoverCard
       book={item}
       width={cardWidth}
+      onToggleRead={() => updateBookReadStatus(item.id, !item.isRead)}
       onPress={() => navigation.navigate("BookDetail", { bookId: item.id })}
     />
   );
@@ -178,6 +209,17 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xs,
     marginBottom: Spacing.sm,
     ...Shadows.small,
+  },
+  readToggle: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
   },
   bookTitle: {
     fontWeight: "500",
