@@ -16,7 +16,12 @@ export function HeaderTitle({ title }: HeaderTitleProps) {
 
   return (
     <View style={styles.container}>
-      <Feather name="book" size={24} color={colors.primary} style={styles.icon} />
+      <Feather
+        name="book"
+        size={24}
+        color={colors.primary}
+        style={styles.icon}
+      />
       <ThemedText style={styles.title}>{title}</ThemedText>
     </View>
   );

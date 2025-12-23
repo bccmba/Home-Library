@@ -36,7 +36,7 @@ export default function CreateShelfScreen() {
 
   const existingNames = shelves.map((s) => s.name.toLowerCase());
   const availableSuggestions = SHELF_SUGGESTIONS.filter(
-    (s) => !existingNames.includes(s.toLowerCase())
+    (s) => !existingNames.includes(s.toLowerCase()),
   );
 
   const handleCreate = async () => {

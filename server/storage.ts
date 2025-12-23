@@ -1,4 +1,11 @@
-import { type Book, type Shelf, type InsertBook, type InsertShelf, books, shelves } from "@shared/schema";
+import {
+  type Book,
+  type Shelf,
+  type InsertBook,
+  type InsertShelf,
+  books,
+  shelves,
+} from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -7,15 +14,16 @@ export interface IStorage {
   getShelf(id: string): Promise<Shelf | undefined>;
   createShelf(shelf: InsertShelf): Promise<Shelf>;
   deleteShelf(id: string): Promise<void>;
-  
+
   getBooks(): Promise<Book[]>;
   getBooksByShelf(shelfId: string): Promise<Book[]>;
   getBook(id: string): Promise<Book | undefined>;
   createBook(book: InsertBook): Promise<Book>;
   updateBookNotes(id: string, notes: string): Promise<Book | undefined>;
+  updateBookReadStatus(id: string, isRead: boolean): Promise<Book | undefined>;
   updateBookShelf(id: string, shelfId: string): Promise<Book | undefined>;
   deleteBook(id: string): Promise<void>;
-  
+
   clearAll(): Promise<void>;
 }
 
@@ -65,7 +73,22 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async updateBookShelf(id: string, shelfId: string): Promise<Book | undefined> {
+  async updateBookReadStatus(
+    id: string,
+    isRead: boolean,
+  ): Promise<Book | undefined> {
+    const [updated] = await db
+      .update(books)
+      .set({ isRead })
+      .where(eq(books.id, id))
+      .returning();
+    return updated;
+  }
+
+  async updateBookShelf(
+    id: string,
+    shelfId: string,
+  ): Promise<Book | undefined> {
     const [updated] = await db
       .update(books)
       .set({ shelfId })

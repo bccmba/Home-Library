@@ -12,7 +12,11 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { CameraView, useCameraPermissions, BarcodeScanningResult } from "expo-camera";
+import {
+  CameraView,
+  useCameraPermissions,
+  BarcodeScanningResult,
+} from "expo-camera";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import Animated, {
@@ -41,12 +45,12 @@ function ScanReticle() {
     opacity.value = withRepeat(
       withSequence(
         withTiming(0.5, { duration: 1000 }),
-        withTiming(1, { duration: 1000 })
+        withTiming(1, { duration: 1000 }),
       ),
       -1,
-      true
+      true,
     );
-  }, []);
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -65,7 +69,7 @@ function ScanReticle() {
 async function fetchBookInfo(isbn: string) {
   try {
     const response = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
+      `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
     );
     const data = await response.json();
 
@@ -114,7 +118,12 @@ export default function ScanScreen() {
     if (!isScanning || isLoading) return;
 
     const { data, type } = result;
-    if (type === "ean13" || type === "ean8" || type === "upc_a" || type === "upc_e") {
+    if (
+      type === "ean13" ||
+      type === "ean8" ||
+      type === "upc_a" ||
+      type === "upc_e"
+    ) {
       await processISBN(data);
     }
   };
@@ -202,7 +211,7 @@ export default function ScanScreen() {
               onPress={async () => {
                 try {
                   await Linking.openSettings();
-                } catch (error) {
+                } catch {
                   // Settings not available
                 }
               }}
@@ -236,10 +245,7 @@ export default function ScanScreen() {
 
       <View style={styles.overlay}>
         <View
-          style={[
-            styles.overlayTop,
-            { paddingTop: insets.top + Spacing.xl },
-          ]}
+          style={[styles.overlayTop, { paddingTop: insets.top + Spacing.xl }]}
         >
           <ThemedText type="body" style={styles.instructionText}>
             Position barcode within frame
@@ -267,7 +273,10 @@ export default function ScanScreen() {
             </View>
           ) : (
             <Pressable
-              style={[styles.manualEntryButton, { backgroundColor: colors.primary }]}
+              style={[
+                styles.manualEntryButton,
+                { backgroundColor: colors.primary },
+              ]}
               onPress={() => setShowManualEntry(true)}
             >
               <Feather name="type" size={18} color="#FFFFFF" />
@@ -318,7 +327,10 @@ export default function ScanScreen() {
               </Button>
               <Button
                 onPress={handleManualEntrySubmit}
-                style={[styles.modalButton, { opacity: !manualISBN.trim() || isLoading ? 0.5 : 1 }]}
+                style={[
+                  styles.modalButton,
+                  { opacity: !manualISBN.trim() || isLoading ? 0.5 : 1 },
+                ]}
                 disabled={!manualISBN.trim() || isLoading}
               >
                 {isLoading ? "Loading..." : "Search"}
@@ -349,7 +361,7 @@ export default function ScanScreen() {
               type="body"
               style={[styles.modalMessage, { color: colors.textSecondary }]}
             >
-              You already have "{pendingBookInfo?.title}" in your library.
+              You already have {`"${pendingBookInfo?.title}"`} in your library.
             </ThemedText>
             <ThemedText
               type="small"

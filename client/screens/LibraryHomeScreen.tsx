@@ -13,9 +13,8 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { useTheme } from "@/hooks/useTheme";
-import { Colors, Spacing, BorderRadius, Shadows } from "@/constants/theme";
+import { Colors, Spacing, BorderRadius } from "@/constants/theme";
 import { LibraryStackParamList } from "@/navigation/LibraryStackNavigator";
 import { useLibraryStore, Shelf, Book } from "@/store/libraryStore";
 
@@ -30,17 +29,14 @@ function StatCard({
   value: number;
   icon: keyof typeof Feather.glyphMap;
 }) {
-  const { theme, isDark } = useTheme();
+  const { isDark } = useTheme();
   const colors = isDark ? Colors.dark : Colors.light;
 
   return (
-    <View
-      style={[
-        styles.statCard,
-        { backgroundColor: colors.secondary },
-      ]}
-    >
-      <View style={[styles.statIconContainer, { backgroundColor: colors.primary }]}>
+    <View style={[styles.statCard, { backgroundColor: colors.secondary }]}>
+      <View
+        style={[styles.statIconContainer, { backgroundColor: colors.primary }]}
+      >
         <Feather name={icon} size={18} color="#FFFFFF" />
       </View>
       <ThemedText type="h3" style={styles.statValue}>
@@ -118,10 +114,7 @@ function ShelfPreviewCard({
           ))}
           {shelfBooks.length > 5 ? (
             <View
-              style={[
-                styles.moreBooks,
-                { backgroundColor: colors.secondary },
-              ]}
+              style={[styles.moreBooks, { backgroundColor: colors.secondary }]}
             >
               <ThemedText type="small">+{shelfBooks.length - 5}</ThemedText>
             </View>
@@ -166,15 +159,16 @@ export default function LibraryHomeScreen() {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const tabBarHeight = useBottomTabBarHeight();
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
   const navigation =
     useNavigation<NativeStackNavigationProp<LibraryStackParamList>>();
-  const colors = isDark ? Colors.dark : Colors.light;
 
   const { shelves, books } = useLibraryStore();
 
   const recentBooks = [...books]
-    .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+    .sort(
+      (a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime(),
+    )
     .slice(0, 5);
 
   return (

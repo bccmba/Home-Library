@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Image,
-  TextInput,
-  Pressable,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, Image, TextInput, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -29,10 +22,11 @@ export default function BookPreviewScreen() {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, "BookPreview">>();
 
-  const { shelves, addBook, addShelf } = useLibraryStore();
+  const { shelves, addBook } = useLibraryStore();
   const [selectedShelfId, setSelectedShelfId] = useState<string | null>(
-    shelves.length > 0 ? shelves[0].id : null
+    shelves.length > 0 ? shelves[0].id : null,
   );
+  const [isRead, setIsRead] = useState(false);
   const [notes, setNotes] = useState("");
   const [showShelfPicker, setShowShelfPicker] = useState(false);
 
@@ -60,6 +54,7 @@ export default function BookPreviewScreen() {
       pageCount,
       publishedYear,
       shelfId: selectedShelfId,
+      isRead,
       notes,
     });
 
@@ -95,13 +90,17 @@ export default function BookPreviewScreen() {
 
       <View style={styles.metaRow}>
         {pageCount ? (
-          <View style={[styles.metaItem, { backgroundColor: colors.secondary }]}>
+          <View
+            style={[styles.metaItem, { backgroundColor: colors.secondary }]}
+          >
             <Feather name="file-text" size={14} color={colors.primary} />
             <ThemedText type="small">{pageCount} pages</ThemedText>
           </View>
         ) : null}
         {publishedYear ? (
-          <View style={[styles.metaItem, { backgroundColor: colors.secondary }]}>
+          <View
+            style={[styles.metaItem, { backgroundColor: colors.secondary }]}
+          >
             <Feather name="calendar" size={14} color={colors.primary} />
             <ThemedText type="small">{publishedYear}</ThemedText>
           </View>
@@ -128,7 +127,10 @@ export default function BookPreviewScreen() {
             <Pressable
               style={[
                 styles.shelfSelector,
-                { backgroundColor: theme.backgroundDefault, borderColor: colors.border },
+                {
+                  backgroundColor: theme.backgroundDefault,
+                  borderColor: colors.border,
+                },
               ]}
               onPress={() => setShowShelfPicker(!showShelfPicker)}
             >
@@ -149,7 +151,10 @@ export default function BookPreviewScreen() {
               <View
                 style={[
                   styles.shelfPickerContainer,
-                  { backgroundColor: theme.backgroundDefault, borderColor: colors.border },
+                  {
+                    backgroundColor: theme.backgroundDefault,
+                    borderColor: colors.border,
+                  },
                 ]}
               >
                 {shelves.map((shelf) => (
@@ -186,7 +191,61 @@ export default function BookPreviewScreen() {
           </>
         )}
 
-        <ThemedText type="h4" style={[styles.sectionLabel, { marginTop: Spacing["2xl"] }]}>
+        <ThemedText
+          type="h4"
+          style={[styles.sectionLabel, { marginTop: Spacing["2xl"] }]}
+        >
+          Reading Status
+        </ThemedText>
+        <View style={styles.readStatusRow}>
+          <Pressable
+            style={[
+              styles.readStatusOption,
+              {
+                backgroundColor: theme.backgroundDefault,
+                borderColor: colors.border,
+              },
+              !isRead && {
+                backgroundColor: colors.secondary,
+                borderColor: colors.primary,
+              },
+            ]}
+            onPress={() => setIsRead(false)}
+          >
+            <Feather
+              name="circle"
+              size={18}
+              color={!isRead ? colors.primary : colors.textSecondary}
+            />
+            <ThemedText type="body">Not read</ThemedText>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.readStatusOption,
+              {
+                backgroundColor: theme.backgroundDefault,
+                borderColor: colors.border,
+              },
+              isRead && {
+                backgroundColor: colors.secondary,
+                borderColor: colors.primary,
+              },
+            ]}
+            onPress={() => setIsRead(true)}
+          >
+            <Feather
+              name="check-circle"
+              size={18}
+              color={isRead ? colors.primary : colors.textSecondary}
+            />
+            <ThemedText type="body">Read</ThemedText>
+          </Pressable>
+        </View>
+
+        <ThemedText
+          type="h4"
+          style={[styles.sectionLabel, { marginTop: Spacing["2xl"] }]}
+        >
           Personal Notes
         </ThemedText>
         <TextInput
@@ -298,6 +357,21 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.sm,
     borderWidth: 1,
     fontSize: 16,
+  },
+  readStatusRow: {
+    flexDirection: "row",
+    gap: Spacing.md,
+  },
+  readStatusOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
   },
   addButton: {
     marginTop: Spacing.lg,
