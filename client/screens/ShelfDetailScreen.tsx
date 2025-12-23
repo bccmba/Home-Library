@@ -20,7 +20,7 @@ import Animated, {
 
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
-import { Colors, Spacing, BorderRadius, Shadows } from "@/constants/theme";
+import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 import { LibraryStackParamList } from "@/navigation/LibraryStackNavigator";
 import { useLibraryStore, Book } from "@/store/libraryStore";
 
@@ -75,8 +75,7 @@ function BookCoverCard({
 }
 
 function EmptyShelfState() {
-  const { isDark } = useTheme();
-  const colors = isDark ? Colors.dark : Colors.light;
+  const { theme } = useTheme();
 
   return (
     <View style={styles.emptyState}>
@@ -90,7 +89,7 @@ function EmptyShelfState() {
       </ThemedText>
       <ThemedText
         type="body"
-        style={[styles.emptySubtitle, { color: colors.textSecondary }]}
+        style={[styles.emptySubtitle, { color: theme.textSecondary }]}
       >
         Tap Scan to add books to this shelf
       </ThemedText>
@@ -102,12 +101,11 @@ export default function ShelfDetailScreen() {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const tabBarHeight = useBottomTabBarHeight();
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
   const { width: screenWidth } = useWindowDimensions();
   const navigation =
     useNavigation<NativeStackNavigationProp<LibraryStackParamList>>();
   const route = useRoute<RouteProp<LibraryStackParamList, "ShelfDetail">>();
-  const colors = isDark ? Colors.dark : Colors.light;
 
   const { books } = useLibraryStore();
   const shelfBooks = books.filter((b) => b.shelfId === route.params.shelfId);

@@ -14,7 +14,9 @@ jest.mock("expo-haptics", () => ({
 }));
 
 jest.mock("@/components/KeyboardAwareScrollViewCompat", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require("react");
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require("react-native");
   return {
     KeyboardAwareScrollViewCompat: ({ children }: any) =>
@@ -73,6 +75,7 @@ describe("BookPreviewScreen (Reading Status)", () => {
   });
 
   it("calls addBook with isRead=true when 'Read' is selected", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Screen = require("@/screens/BookPreviewScreen")
       .default as React.ComponentType;
     const { getByText } = render(<Screen />);
@@ -98,6 +101,7 @@ describe("BookPreviewScreen (Reading Status)", () => {
   });
 
   it("defaults to isRead=false when not changed", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Screen = require("@/screens/BookPreviewScreen")
       .default as React.ComponentType;
     const { getByText } = render(<Screen />);

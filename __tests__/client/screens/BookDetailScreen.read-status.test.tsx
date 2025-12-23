@@ -75,6 +75,7 @@ describe("BookDetailScreen (Reading Status)", () => {
   });
 
   it("calls updateBookReadStatus(true) when 'Read' pressed", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Screen = require("@/screens/BookDetailScreen")
       .default as React.ComponentType;
     const { getByText } = render(<Screen />);
@@ -84,6 +85,7 @@ describe("BookDetailScreen (Reading Status)", () => {
   });
 
   it("calls updateBookReadStatus(false) when 'Not read' pressed", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Screen = require("@/screens/BookDetailScreen")
       .default as React.ComponentType;
     const { getByText } = render(<Screen />);

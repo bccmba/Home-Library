@@ -50,7 +50,7 @@ function ScanReticle() {
       -1,
       true,
     );
-  }, []);
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -211,7 +211,7 @@ export default function ScanScreen() {
               onPress={async () => {
                 try {
                   await Linking.openSettings();
-                } catch (error) {
+                } catch {
                   // Settings not available
                 }
               }}

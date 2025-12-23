@@ -14,10 +14,13 @@ describe("client/store/libraryStore (isRead)", () => {
   });
 
   it("sends isRead when creating a book and stores it locally", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { apiRequest } = require("@/lib/query-client") as {
       apiRequest: jest.Mock;
     };
+
     const { useLibraryStore } =
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require("@/store/libraryStore") as typeof import("@/store/libraryStore");
 
     (global.fetch as any) = jest
@@ -91,10 +94,13 @@ describe("client/store/libraryStore (isRead)", () => {
   });
 
   it("updates read status locally after API call", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { apiRequest } = require("@/lib/query-client") as {
       apiRequest: jest.Mock;
     };
+
     const { useLibraryStore } =
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require("@/store/libraryStore") as typeof import("@/store/libraryStore");
 
     (global.fetch as any) = jest
