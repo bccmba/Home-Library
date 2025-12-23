@@ -1,7 +1,6 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 
-const mockUpdateBookReadStatus = jest.fn();
 const mockUpdateBookShelf = jest.fn();
 
 jest.mock("@expo/vector-icons", () => ({
@@ -49,9 +48,10 @@ jest.mock("@/store/libraryStore", () => ({
     ],
     shelves: [
       { id: "shelf-1", name: "Shelf 1", createdAt: new Date().toISOString() },
+      { id: "shelf-2", name: "Shelf 2", createdAt: new Date().toISOString() },
     ],
     updateBookNotes: jest.fn(),
-    updateBookReadStatus: mockUpdateBookReadStatus,
+    updateBookReadStatus: jest.fn(),
     updateBookShelf: mockUpdateBookShelf,
     removeBook: jest.fn(),
     isLoading: false,
@@ -66,34 +66,27 @@ jest.mock("@/hooks/useTheme", () => ({
       backgroundDefault: "#fff",
       text: "#111",
       link: "#00f",
+      textSecondary: "#666",
+      buttonText: "#fff",
     },
   }),
 }));
 
-describe("BookDetailScreen (Reading Status)", () => {
+describe("BookDetailScreen (Move to Shelf)", () => {
   beforeEach(() => {
-    mockUpdateBookReadStatus.mockClear();
     mockUpdateBookShelf.mockClear();
     mockRouteParams = { bookId: "book-1" };
   });
 
-  it("calls updateBookReadStatus(true) when 'Read' pressed", () => {
+  it("calls updateBookShelf when selecting a different shelf", () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Screen = require("@/screens/BookDetailScreen")
       .default as React.ComponentType;
-    const { getByText } = render(<Screen />);
+    const { getByLabelText } = render(<Screen />);
 
-    fireEvent.press(getByText("Read"));
-    expect(mockUpdateBookReadStatus).toHaveBeenCalledWith("book-1", true);
-  });
+    fireEvent.press(getByLabelText("MoveShelfSelector"));
+    fireEvent.press(getByLabelText("MoveShelfOption:shelf-2"));
 
-  it("calls updateBookReadStatus(false) when 'Not read' pressed", () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Screen = require("@/screens/BookDetailScreen")
-      .default as React.ComponentType;
-    const { getByText } = render(<Screen />);
-
-    fireEvent.press(getByText("Not read"));
-    expect(mockUpdateBookReadStatus).toHaveBeenCalledWith("book-1", false);
+    expect(mockUpdateBookShelf).toHaveBeenCalledWith("book-1", "shelf-2");
   });
 });

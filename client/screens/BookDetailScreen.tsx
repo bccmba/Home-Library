@@ -59,13 +59,20 @@ export default function BookDetailScreen() {
   const route = useRoute<RouteProp<LibraryStackParamList, "BookDetail">>();
   const colors = isDark ? Colors.dark : Colors.light;
 
-  const { books, shelves, updateBookNotes, updateBookReadStatus, removeBook } =
-    useLibraryStore();
+  const {
+    books,
+    shelves,
+    updateBookNotes,
+    updateBookReadStatus,
+    updateBookShelf,
+    removeBook,
+  } = useLibraryStore();
   const book = books.find((b) => b.id === route.params.bookId);
   const shelf = shelves.find((s) => s.id === book?.shelfId);
 
   const [notes, setNotes] = useState(book?.notes || "");
   const [isEditing, setIsEditing] = useState(false);
+  const [showShelfPicker, setShowShelfPicker] = useState(false);
 
   if (!book) {
     return (
@@ -154,6 +161,70 @@ export default function BookDetailScreen() {
             />
           ) : null}
           <InfoRow icon="grid" label="Shelf" value={shelf?.name || "Unknown"} />
+        </View>
+
+        <View style={styles.moveSection}>
+          <View style={styles.noteHeader}>
+            <ThemedText type="h4">Move to Shelf</ThemedText>
+          </View>
+
+          <Pressable
+            style={[
+              styles.shelfSelector,
+              {
+                backgroundColor: theme.backgroundDefault,
+                borderColor: colors.border,
+              },
+            ]}
+            accessibilityLabel="MoveShelfSelector"
+            onPress={() => setShowShelfPicker((v) => !v)}
+          >
+            <View style={styles.shelfSelectorContent}>
+              <Feather name="grid" size={18} color={colors.primary} />
+              <ThemedText type="body">
+                {shelf?.name || "Select a shelf"}
+              </ThemedText>
+            </View>
+            <Feather
+              name={showShelfPicker ? "chevron-up" : "chevron-down"}
+              size={20}
+              color={colors.textSecondary}
+            />
+          </Pressable>
+
+          {showShelfPicker ? (
+            <View
+              style={[
+                styles.shelfPickerContainer,
+                {
+                  backgroundColor: theme.backgroundDefault,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              {shelves.map((s) => (
+                <Pressable
+                  key={s.id}
+                  style={[
+                    styles.shelfOption,
+                    s.id === book.shelfId && {
+                      backgroundColor: colors.secondary,
+                    },
+                  ]}
+                  accessibilityLabel={`MoveShelfOption:${s.id}`}
+                  onPress={() => {
+                    setShowShelfPicker(false);
+                    updateBookShelf(book.id, s.id);
+                  }}
+                >
+                  <ThemedText type="body">{s.name}</ThemedText>
+                  {s.id === book.shelfId ? (
+                    <Feather name="check" size={18} color={colors.primary} />
+                  ) : null}
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.readStatusSection}>
@@ -315,6 +386,34 @@ const styles = StyleSheet.create({
   },
   infoContent: {
     flex: 1,
+  },
+  moveSection: {
+    marginBottom: Spacing["2xl"],
+  },
+  shelfSelector: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+  },
+  shelfSelectorContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+  },
+  shelfPickerContainer: {
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  shelfOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: Spacing.lg,
   },
   notesSection: {
     marginBottom: Spacing["2xl"],
