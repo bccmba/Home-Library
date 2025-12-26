@@ -39,6 +39,8 @@ describe("client/store/libraryStore (isRead)", () => {
 
     apiRequest.mockImplementation(async (method: string, route: string) => {
       if (method === "DELETE" && route === "/api/library") return {};
+      if (method === "GET" && route === "/api/shelves") return { json: async () => [] };
+      if (method === "GET" && route === "/api/books") return { json: async () => [] };
       if (method === "POST" && route === "/api/books") {
         return {
           json: async () => ({
@@ -119,6 +121,8 @@ describe("client/store/libraryStore (isRead)", () => {
 
     apiRequest.mockImplementation(async (method: string, route: string) => {
       if (method === "DELETE" && route === "/api/library") return {};
+      if (method === "GET" && route === "/api/shelves") return { json: async () => [] };
+      if (method === "GET" && route === "/api/books") return { json: async () => [] };
       if (method === "POST" && route === "/api/books") {
         return {
           json: async () => ({
@@ -134,8 +138,7 @@ describe("client/store/libraryStore (isRead)", () => {
           }),
         };
       }
-      if (method === "PATCH" && route === "/api/books/book-1/read-status")
-        return {};
+      if (method === "PATCH" && route === "/api/books/book-1/read-status") return {};
       throw new Error(`Unexpected apiRequest: ${method} ${route}`);
     });
 
@@ -199,6 +202,8 @@ describe("client/store/libraryStore (isRead)", () => {
 
     apiRequest.mockImplementation(async (method: string, route: string) => {
       if (method === "DELETE" && route === "/api/library") return {};
+      if (method === "GET" && route === "/api/shelves") return { json: async () => [] };
+      if (method === "GET" && route === "/api/books") return { json: async () => [] };
       if (method === "POST" && route === "/api/books") {
         return {
           json: async () => ({
