@@ -51,17 +51,12 @@ async function fetchInitialData() {
 
   initInFlight = (async () => {
     try {
+      // Use the shared apiRequest helper so behavior is consistent with
+      // other client requests and tests can mock `apiRequest` reliably.
       const [shelvesRes, booksRes] = await Promise.all([
-        fetch(new URL("/api/shelves", getApiUrl()).toString()),
-        fetch(new URL("/api/books", getApiUrl()).toString()),
+        apiRequest("GET", "/api/shelves"),
+        apiRequest("GET", "/api/books"),
       ]);
-
-      if (!shelvesRes.ok) {
-        throw new Error(`Failed to fetch shelves: ${shelvesRes.status}`);
-      }
-      if (!booksRes.ok) {
-        throw new Error(`Failed to fetch books: ${booksRes.status}`);
-      }
 
       const shelves = await shelvesRes.json();
       const books = await booksRes.json();
