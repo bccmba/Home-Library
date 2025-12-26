@@ -6,6 +6,7 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  Pressable,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -58,7 +59,8 @@ export default function BookDetailScreen() {
   const route = useRoute<RouteProp<LibraryStackParamList, "BookDetail">>();
   const colors = isDark ? Colors.dark : Colors.light;
 
-  const { books, shelves, updateBookNotes, removeBook } = useLibraryStore();
+  const { books, shelves, updateBookNotes, updateBookReadStatus, removeBook } =
+    useLibraryStore();
   const book = books.find((b) => b.id === route.params.bookId);
   const shelf = shelves.find((s) => s.id === book?.shelfId);
 
@@ -92,7 +94,7 @@ export default function BookDetailScreen() {
             navigation.goBack();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -145,9 +147,70 @@ export default function BookDetailScreen() {
             />
           ) : null}
           {book.publishedYear ? (
-            <InfoRow icon="calendar" label="Published" value={book.publishedYear} />
+            <InfoRow
+              icon="calendar"
+              label="Published"
+              value={book.publishedYear}
+            />
           ) : null}
           <InfoRow icon="grid" label="Shelf" value={shelf?.name || "Unknown"} />
+        </View>
+
+        <Button
+          style={styles.moveButton}
+          onPress={() => navigation.navigate("MoveBook", { bookId: book.id })}
+        >
+          Move to Shelf
+        </Button>
+
+        <View style={styles.readStatusSection}>
+          <View style={styles.noteHeader}>
+            <ThemedText type="h4">Reading Status</ThemedText>
+          </View>
+          <View style={styles.readStatusRow}>
+            <Pressable
+              style={[
+                styles.readStatusOption,
+                {
+                  backgroundColor: theme.backgroundDefault,
+                  borderColor: colors.border,
+                },
+                !book.isRead && {
+                  backgroundColor: colors.secondary,
+                  borderColor: colors.primary,
+                },
+              ]}
+              onPress={() => updateBookReadStatus(book.id, false)}
+            >
+              <Feather
+                name="circle"
+                size={18}
+                color={!book.isRead ? colors.primary : colors.textSecondary}
+              />
+              <ThemedText type="body">Not read</ThemedText>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.readStatusOption,
+                {
+                  backgroundColor: theme.backgroundDefault,
+                  borderColor: colors.border,
+                },
+                book.isRead && {
+                  backgroundColor: colors.secondary,
+                  borderColor: colors.primary,
+                },
+              ]}
+              onPress={() => updateBookReadStatus(book.id, true)}
+            >
+              <Feather
+                name="check-circle"
+                size={18}
+                color={book.isRead ? colors.primary : colors.textSecondary}
+              />
+              <ThemedText type="body">Read</ThemedText>
+            </Pressable>
+          </View>
         </View>
 
         <View style={styles.notesSection}>
@@ -252,6 +315,9 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     marginBottom: Spacing["2xl"],
   },
+  moveButton: {
+    marginBottom: Spacing["2xl"],
+  },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -262,6 +328,24 @@ const styles = StyleSheet.create({
   },
   notesSection: {
     marginBottom: Spacing["2xl"],
+  },
+  readStatusSection: {
+    marginBottom: Spacing["2xl"],
+  },
+  readStatusRow: {
+    flexDirection: "row",
+    gap: Spacing.md,
+  },
+  readStatusOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
   },
   noteHeader: {
     flexDirection: "row",

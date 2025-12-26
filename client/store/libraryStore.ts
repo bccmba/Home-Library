@@ -10,6 +10,7 @@ export interface Book {
   pageCount?: number;
   publishedYear?: string;
   shelfId: string;
+  isRead: boolean;
   notes: string;
   addedAt: string;
 }
@@ -118,6 +119,7 @@ export function useLibraryStore() {
           pageCount: bookData.pageCount,
           publishedYear: bookData.publishedYear,
           shelfId: bookData.shelfId,
+          isRead: bookData.isRead,
           notes: bookData.notes || "",
         });
 
@@ -127,6 +129,7 @@ export function useLibraryStore() {
           shelfId: newBook.shelfId || newBook.shelf_id,
           pageCount: newBook.pageCount || newBook.page_count,
           publishedYear: newBook.publishedYear || newBook.published_year,
+          isRead: newBook.isRead ?? newBook.is_read ?? false,
           addedAt: newBook.addedAt || newBook.added_at,
         };
 
@@ -141,7 +144,7 @@ export function useLibraryStore() {
         throw error;
       }
     },
-    []
+    [],
   );
 
   const removeBook = useCallback(async (bookId: string) => {
@@ -164,7 +167,7 @@ export function useLibraryStore() {
       globalState = {
         ...globalState,
         books: globalState.books.map((b) =>
-          b.id === bookId ? { ...b, notes } : b
+          b.id === bookId ? { ...b, notes } : b,
         ),
       };
       notifyListeners();
@@ -174,21 +177,45 @@ export function useLibraryStore() {
     }
   }, []);
 
-  const updateBookShelf = useCallback(async (bookId: string, shelfId: string) => {
-    try {
-      await apiRequest("PATCH", `/api/books/${bookId}/shelf`, { shelfId });
-      globalState = {
-        ...globalState,
-        books: globalState.books.map((b) =>
-          b.id === bookId ? { ...b, shelfId } : b
-        ),
-      };
-      notifyListeners();
-    } catch (error) {
-      console.error("Failed to update book shelf:", error);
-      throw error;
-    }
-  }, []);
+  const updateBookReadStatus = useCallback(
+    async (bookId: string, isRead: boolean) => {
+      try {
+        await apiRequest("PATCH", `/api/books/${bookId}/read-status`, {
+          isRead,
+        });
+        globalState = {
+          ...globalState,
+          books: globalState.books.map((b) =>
+            b.id === bookId ? { ...b, isRead } : b,
+          ),
+        };
+        notifyListeners();
+      } catch (error) {
+        console.error("Failed to update book read status:", error);
+        throw error;
+      }
+    },
+    [],
+  );
+
+  const updateBookShelf = useCallback(
+    async (bookId: string, shelfId: string) => {
+      try {
+        await apiRequest("PATCH", `/api/books/${bookId}/shelf`, { shelfId });
+        globalState = {
+          ...globalState,
+          books: globalState.books.map((b) =>
+            b.id === bookId ? { ...b, shelfId } : b,
+          ),
+        };
+        notifyListeners();
+      } catch (error) {
+        console.error("Failed to update book shelf:", error);
+        throw error;
+      }
+    },
+    [],
+  );
 
   const addShelf = useCallback(async (name: string) => {
     try {
@@ -248,6 +275,7 @@ export function useLibraryStore() {
     addBook,
     removeBook,
     updateBookNotes,
+    updateBookReadStatus,
     updateBookShelf,
     addShelf,
     removeShelf,

@@ -14,8 +14,29 @@
     "lint": "npx expo lint",
     "lint:fix": "npx expo lint --fix",
     "check:types": "tsc --noEmit",
+    "test": "jest",
     "check:format": "prettier --check \"**/*.{js,ts,tsx,css,json}\"",
     "format": "prettier --write \"**/*.{js,ts,tsx,css,json}\""
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ],
+    "testMatch": [
+      "<rootDir>/**/__tests__/**/*.(test|spec).(ts|tsx|js)"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/",
+      "/server_dist/",
+      "/static-build/",
+      "/migrations/"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/client/$1",
+      "^@shared/(.*)$": "<rootDir>/shared/$1"
+    }
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -56,9 +77,12 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.3.3",
     "@types/express": "^4.17.21",
     "@types/node": "24.10.0",
     "@types/react": "~19.1.0",
+    "@types/supertest": "^6.0.3",
     "babel-plugin-module-resolver": "^5.0.2",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9.25.0",
@@ -66,7 +90,11 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-node": "^0.3.9",
     "eslint-plugin-prettier": "^5.5.4",
+    "jest": "^29.7.0",
+    "jest-expo": "^54.0.16",
     "prettier": "3.6.2",
+    "react-test-renderer": "^19.1.0",
+    "supertest": "^7.1.4",
     "typescript": "~5.9.2"
   },
   "private": true

@@ -4,12 +4,14 @@ import { useScreenOptions } from "@/hooks/useScreenOptions";
 import LibraryHomeScreen from "@/screens/LibraryHomeScreen";
 import ShelfDetailScreen from "@/screens/ShelfDetailScreen";
 import BookDetailScreen from "@/screens/BookDetailScreen";
+import MoveBookScreen from "@/screens/MoveBookScreen";
 import { HeaderTitle } from "@/components/HeaderTitle";
 
 export type LibraryStackParamList = {
   LibraryHome: undefined;
   ShelfDetail: { shelfId: string; shelfName: string };
   BookDetail: { bookId: string };
+  MoveBook: { bookId: string };
 };
 
 const Stack = createNativeStackNavigator<LibraryStackParamList>();
@@ -38,6 +40,13 @@ export default function LibraryStackNavigator() {
         component={BookDetailScreen}
         options={{
           headerTitle: "Book Details",
+        }}
+      />
+      <Stack.Screen
+        name="MoveBook"
+        component={MoveBookScreen}
+        options={{
+          headerTitle: "Move Book",
         }}
       />
     </Stack.Navigator>

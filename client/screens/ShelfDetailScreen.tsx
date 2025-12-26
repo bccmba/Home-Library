@@ -12,6 +12,7 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Feather } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -29,12 +30,16 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 function BookCoverCard({
   book,
   onPress,
+  onToggleRead,
   width,
 }: {
   book: Book;
   onPress: () => void;
+  onToggleRead: () => void;
   width: number;
 }) {
+  const { isDark } = useTheme();
+  const colors = isDark ? Colors.dark : Colors.light;
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -59,11 +64,37 @@ function BookCoverCard({
       style={[styles.bookCard, { width }, animatedStyle]}
       accessibilityLabel={`${book.title} by ${book.authors.join(", ")}`}
     >
-      <Image
-        source={{ uri: book.cover }}
-        style={[styles.bookCover, { height: coverHeight }]}
-        resizeMode="cover"
-      />
+      <View>
+        <Image
+          source={{ uri: book.cover }}
+          style={[styles.bookCover, { height: coverHeight }]}
+          resizeMode="cover"
+        />
+        <Pressable
+          onPress={onToggleRead}
+          style={[
+            styles.readToggle,
+            {
+              backgroundColor: book.isRead
+                ? colors.primary
+                : colors.backgroundDefault,
+              borderColor: book.isRead ? colors.primary : colors.border,
+            },
+          ]}
+          accessibilityLabel={
+            book.isRead
+              ? `Mark ${book.title} as not read`
+              : `Mark ${book.title} as read`
+          }
+          hitSlop={10}
+        >
+          <Feather
+            name={book.isRead ? "check" : "circle"}
+            size={16}
+            color={book.isRead ? "#FFFFFF" : colors.textSecondary}
+          />
+        </Pressable>
+      </View>
       <ThemedText type="small" numberOfLines={2} style={styles.bookTitle}>
         {book.title}
       </ThemedText>
@@ -75,22 +106,25 @@ function BookCoverCard({
 }
 
 function EmptyShelfState() {
-  const { isDark } = useTheme();
+  const { theme, isDark } = useTheme();
   const colors = isDark ? Colors.dark : Colors.light;
 
   return (
     <View style={styles.emptyState}>
-      <Image
-        source={require("../assets/images/empty-shelf.png")}
-        style={styles.emptyImage}
-        resizeMode="contain"
-      />
+      <View
+        style={[
+          styles.emptyIconContainer,
+          { backgroundColor: colors.secondary },
+        ]}
+      >
+        <Feather name="book-open" size={60} color={colors.primary} />
+      </View>
       <ThemedText type="h4" style={styles.emptyTitle}>
         This shelf is empty
       </ThemedText>
       <ThemedText
         type="body"
-        style={[styles.emptySubtitle, { color: colors.textSecondary }]}
+        style={[styles.emptySubtitle, { color: theme.textSecondary }]}
       >
         Tap Scan to add books to this shelf
       </ThemedText>
@@ -102,14 +136,13 @@ export default function ShelfDetailScreen() {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const tabBarHeight = useBottomTabBarHeight();
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
   const { width: screenWidth } = useWindowDimensions();
   const navigation =
     useNavigation<NativeStackNavigationProp<LibraryStackParamList>>();
   const route = useRoute<RouteProp<LibraryStackParamList, "ShelfDetail">>();
-  const colors = isDark ? Colors.dark : Colors.light;
 
-  const { books } = useLibraryStore();
+  const { books, updateBookReadStatus } = useLibraryStore();
   const shelfBooks = books.filter((b) => b.shelfId === route.params.shelfId);
 
   const numColumns = 2;
@@ -120,6 +153,7 @@ export default function ShelfDetailScreen() {
     <BookCoverCard
       book={item}
       width={cardWidth}
+      onToggleRead={() => updateBookReadStatus(item.id, !item.isRead)}
       onPress={() => navigation.navigate("BookDetail", { bookId: item.id })}
     />
   );
@@ -176,6 +210,17 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     ...Shadows.small,
   },
+  readToggle: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+  },
   bookTitle: {
     fontWeight: "500",
     marginBottom: Spacing.xs,
@@ -189,9 +234,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: Spacing["5xl"],
   },
-  emptyImage: {
-    width: 180,
-    height: 180,
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing["2xl"],
   },
   emptyTitle: {
