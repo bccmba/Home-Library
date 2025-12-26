@@ -200,19 +200,31 @@ function configureExpoAndLanding(app: express.Application) {
 }
 
 function setupErrorHandler(app: express.Application) {
-  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
     const error = err as {
       status?: number;
       statusCode?: number;
       message?: string;
     };
 
+    // If a response is already in progress, delegate to Express' default handler
+    // so we don't trigger "headers already sent" and we don't crash the process.
+    if (res.headersSent) {
+      return next(err);
+    }
+
     const status = error.status || error.statusCode || 500;
     const message = error.message || "Internal Server Error";
 
-    res.status(status).json({ message });
+    // Log for server-side visibility
+    console.error("Unhandled error:", {
+      method: req.method,
+      path: req.path,
+      status,
+      message,
+    });
 
-    throw err;
+    res.status(status).json({ message });
   });
 }
 
