@@ -1,3 +1,4 @@
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
 
 const BOOKS_COLLECTION = "books";
@@ -9,7 +10,7 @@ const BOOKS_COLLECTION = "books";
  */
 export async function addBook(book) {
   try {
-    const docRef = await db.collection(BOOKS_COLLECTION).add(book);
+    const docRef = await addDoc(collection(db, BOOKS_COLLECTION), book);
     return docRef.id;
   } catch (error) {
     console.log("Error adding book:", error);
@@ -24,10 +25,8 @@ export async function addBook(book) {
  */
 export async function getBooks() {
   try {
-    const snapshot = await db
-      .collection(BOOKS_COLLECTION)
-      .orderBy("title")
-      .get();
+    const q = query(collection(db, BOOKS_COLLECTION), orderBy("title"));
+    const snapshot = await getDocs(q);
 
     const books = [];
     snapshot.forEach((doc) => {
@@ -52,7 +51,7 @@ export async function getBooks() {
  */
 export async function updateBook(id, updatedBook) {
   try {
-    await db.collection(BOOKS_COLLECTION).doc(id).update(updatedBook);
+    await updateDoc(doc(db, BOOKS_COLLECTION, id), updatedBook);
   } catch (error) {
     console.log("Error updating book:", error);
     throw error;
@@ -66,7 +65,7 @@ export async function updateBook(id, updatedBook) {
  */
 export async function deleteBook(id) {
   try {
-    await db.collection(BOOKS_COLLECTION).doc(id).delete();
+    await deleteDoc(doc(db, BOOKS_COLLECTION, id));
   } catch (error) {
     console.log("Error deleting book:", error);
     throw error;
