@@ -17,6 +17,7 @@ function setupCors(app: express.Application) {
   app.use((req, res, next) => {
     const origins = new Set<string>();
 
+    // Allow Replit domains if configured
     if (process.env.REPLIT_DEV_DOMAIN) {
       origins.add(`https://${process.env.REPLIT_DEV_DOMAIN}`);
     }
@@ -27,15 +28,37 @@ function setupCors(app: express.Application) {
       });
     }
 
+    // Allow localhost for local development
+    origins.add("http://localhost:8081"); // Expo dev server
+    origins.add("http://localhost:19000"); // Expo web
+    origins.add("http://localhost:19006"); // Expo web alternative
+    origins.add("http://127.0.0.1:8081");
+    origins.add("http://127.0.0.1:19000");
+    origins.add("http://127.0.0.1:19006");
+
     const origin = req.header("origin");
 
-    if (origin && origins.has(origin)) {
-      res.header("Access-Control-Allow-Origin", origin);
+    // In development, allow all origins for easier local testing
+    // In production, only allow configured origins
+    const isDevelopment = process.env.NODE_ENV !== "production";
+    const shouldAllowOrigin =
+      isDevelopment || (origin && origins.has(origin));
+
+    if (shouldAllowOrigin) {
+      if (origin && origins.has(origin)) {
+        res.header("Access-Control-Allow-Origin", origin);
+      } else if (isDevelopment) {
+        // In dev, allow the requesting origin even if not in our set
+        res.header("Access-Control-Allow-Origin", origin || "*");
+      }
       res.header(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS",
+        "GET, POST, PUT, DELETE, PATCH, OPTIONS",
       );
-      res.header("Access-Control-Allow-Headers", "Content-Type");
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization",
+      );
       res.header("Access-Control-Allow-Credentials", "true");
     }
 

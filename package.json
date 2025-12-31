@@ -3,6 +3,8 @@
   "main": "client/index.js",
   "version": "1.0.0",
   "scripts": {
+    "start": "npx expo start",
+    "start:clear": "npx expo start --clear",
     "expo:dev": "EXPO_PACKAGER_PROXY_URL=https://$REPLIT_DEV_DOMAIN REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN EXPO_PUBLIC_DOMAIN=$REPLIT_DEV_DOMAIN:5000 npx expo start --localhost",
     "server:dev": "NODE_ENV=development tsx server/index.ts",
     "all:dev": "npm run expo:dev & npm run server:dev",
@@ -47,7 +49,7 @@
     "@tanstack/react-query": "^5.90.7",
     "drizzle-orm": "^0.39.3",
     "drizzle-zod": "^0.7.0",
-    "expo": "^54.0.23",
+    "expo": "^54.0.30",
     "expo-blur": "^15.0.7",
     "expo-camera": "^17.0.10",
     "expo-constants": "~18.0.9",
