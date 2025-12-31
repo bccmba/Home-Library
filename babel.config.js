@@ -15,6 +15,20 @@ module.exports = function (api) {
         },
       ],
       "react-native-reanimated/plugin",
+      // Add this new plugin at the end (or anywhere in the array, but end is safest)
+      [
+        "module:react-native-dotenv",
+        {
+          moduleName: "@env",
+          path: ".env",
+          // Optional but recommended settings:
+          allowlist: null,          // Allow all env vars (or specify a list)
+          blacklist: null,          // Deprecated, use blocklist
+          blocklist: null,
+          safe: false,
+          allowUndefined: true,
+        },
+      ],
     ],
   };
 };
