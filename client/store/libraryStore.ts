@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getApiUrl, apiRequest } from "@/lib/query-client";
+import { apiRequest } from "@/lib/query-client";
 
 export interface Book {
   id: string;

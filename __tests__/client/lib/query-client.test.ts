@@ -1,74 +1,19 @@
-import { Platform } from "react-native";
-import { getApiUrl, apiRequest, getQueryFn } from "@/lib/query-client";
+import { apiRequest, getQueryFn } from "@/lib/query-client";
 
-// Mock Platform
-jest.mock("react-native", () => ({
-  Platform: {
-    OS: "ios",
-  },
+// Mock the env config
+jest.mock("@/config/env", () => ({
+  API_BASE_URL: "http://192.168.68.50:5000",
 }));
 
 // Mock fetch
 global.fetch = jest.fn();
 
-// Mock __DEV__
-declare global {
-  var __DEV__: boolean;
-}
-global.__DEV__ = true;
-
 describe("query-client", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    delete process.env.EXPO_PUBLIC_DOMAIN;
-  });
-
-  describe("getApiUrl", () => {
-    it("should return the URL from EXPO_PUBLIC_DOMAIN when set", () => {
-      process.env.EXPO_PUBLIC_DOMAIN = "https://example.com";
-      const result = getApiUrl();
-      expect(result).toBe("https://example.com");
-    });
-
-    it("should add http protocol for dev when EXPO_PUBLIC_DOMAIN is set without protocol", () => {
-      global.__DEV__ = true;
-      process.env.EXPO_PUBLIC_DOMAIN = "localhost:5000";
-      const result = getApiUrl();
-      expect(result).toBe("http://localhost:5000");
-    });
-
-    it("should add https protocol for production when EXPO_PUBLIC_DOMAIN is set without protocol", () => {
-      global.__DEV__ = false;
-      process.env.EXPO_PUBLIC_DOMAIN = "example.com";
-      const result = getApiUrl();
-      expect(result).toBe("https://example.com");
-    });
-
-    it("should return localhost for iOS in dev mode", () => {
-      global.__DEV__ = true;
-      (Platform.OS as any) = "ios";
-      const result = getApiUrl();
-      expect(result).toBe("http://localhost:5000");
-    });
-
-    it("should return 10.0.2.2 for Android in dev mode", () => {
-      global.__DEV__ = true;
-      (Platform.OS as any) = "android";
-      const result = getApiUrl();
-      expect(result).toBe("http://10.0.2.2:5000");
-    });
-
-    it("should throw error when EXPO_PUBLIC_DOMAIN is not set in production", () => {
-      global.__DEV__ = false;
-      expect(() => getApiUrl()).toThrow("EXPO_PUBLIC_DOMAIN is not set");
-    });
   });
 
   describe("apiRequest", () => {
-    beforeEach(() => {
-      global.__DEV__ = true;
-      (Platform.OS as any) = "ios";
-    });
 
     it("should make a successful GET request", async () => {
       const mockResponse = {
@@ -136,10 +81,6 @@ describe("query-client", () => {
   });
 
   describe("getQueryFn", () => {
-    beforeEach(() => {
-      global.__DEV__ = true;
-      (Platform.OS as any) = "ios";
-    });
 
     it("should fetch data successfully", async () => {
       const mockData = { id: "1", title: "Test" };

@@ -3,7 +3,6 @@ import { render, act } from "@testing-library/react-native";
 
 jest.mock("@/lib/query-client", () => {
   return {
-    getApiUrl: jest.fn(() => "https://example.com"),
     apiRequest: jest.fn(),
   };
 });

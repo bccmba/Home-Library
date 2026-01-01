@@ -36,6 +36,18 @@ function setupCors(app: express.Application) {
     origins.add("http://127.0.0.1:19000");
     origins.add("http://127.0.0.1:19006");
 
+    // Allow IP addresses for physical device connections
+    // This allows connections from devices on the local network
+    if (process.env.EXPO_PUBLIC_DOMAIN) {
+      try {
+        const apiUrl = new URL(process.env.EXPO_PUBLIC_DOMAIN);
+        // Extract the origin from EXPO_PUBLIC_DOMAIN (e.g., http://192.168.68.50:5000)
+        origins.add(apiUrl.origin);
+      } catch (e) {
+        // If EXPO_PUBLIC_DOMAIN is not a valid URL, ignore
+      }
+    }
+
     const origin = req.header("origin");
 
     // In development, allow all origins for easier local testing
