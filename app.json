@@ -12,7 +12,15 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.myhomelibrary.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "My Home Library needs camera access to scan book barcodes and add books to your collection."
+        "NSCameraUsageDescription": "My Home Library needs camera access to scan book barcodes and add books to your collection.",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSExceptionDomains": {
+            "localhost": {
+              "NSExceptionAllowsInsecureHTTPLoads": true
+            }
+          }
+        }
       }
     },
     "android": {
@@ -24,7 +32,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.myhomelibrary.app"
+      "package": "com.myhomelibrary.app",
+      "usesCleartextTraffic": true
     },
     "web": {
       "output": "single",
