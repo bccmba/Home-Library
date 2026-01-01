@@ -5,13 +5,13 @@
  * It reads from the EXPO_PUBLIC_DOMAIN environment variable.
  * 
  * For physical devices, set EXPO_PUBLIC_DOMAIN to your computer's IP address:
- * EXPO_PUBLIC_DOMAIN=http://192.168.68.50:5000
+ * EXPO_PUBLIC_DOMAIN=http://192.168.68.63:3000
  */
 
 if (!process.env.EXPO_PUBLIC_DOMAIN) {
   throw new Error(
     "EXPO_PUBLIC_DOMAIN is not defined. " +
-    "Please set it in your .env file (e.g., EXPO_PUBLIC_DOMAIN=http://192.168.68.50:5000)"
+    "Please set it in your .env file (e.g., EXPO_PUBLIC_DOMAIN=http://192.168.68.63:3000)"
   );
 }
 

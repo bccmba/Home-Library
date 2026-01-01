@@ -2,7 +2,7 @@ import { apiRequest, getQueryFn } from "@/lib/query-client";
 
 // Mock the env config
 jest.mock("@/config/env", () => ({
-  API_BASE_URL: "http://192.168.68.50:5000",
+  API_BASE_URL: "http://192.168.68.63:3000",
 }));
 
 // Mock fetch

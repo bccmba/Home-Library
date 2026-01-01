@@ -41,7 +41,7 @@ function setupCors(app: express.Application) {
     if (process.env.EXPO_PUBLIC_DOMAIN) {
       try {
         const apiUrl = new URL(process.env.EXPO_PUBLIC_DOMAIN);
-        // Extract the origin from EXPO_PUBLIC_DOMAIN (e.g., http://192.168.68.50:5000)
+        // Extract the origin from EXPO_PUBLIC_DOMAIN (e.g., http://192.168.68.63:3000)
         origins.add(apiUrl.origin);
       } catch (e) {
         // If EXPO_PUBLIC_DOMAIN is not a valid URL, ignore
@@ -275,7 +275,7 @@ function setupErrorHandler(app: express.Application) {
 
   setupErrorHandler(app);
 
-  const port = parseInt(process.env.PORT || "5000", 10);
+  const port = parseInt(process.env.PORT || "3000", 10);
   server.listen(
     {
       port,
