@@ -9,6 +9,65 @@ import { StatusBar } from "expo-status-bar";
 // Initialize Firebase early in the app lifecycle
 import "../firebase";
 
+// Firestore sanity test on app startup (dev mode only)
+if (__DEV__) {
+  import("../src/services/firebaseTest")
+    .then(({ testFirestoreConnection }) => {
+      // Run test after a short delay to ensure Firebase is fully initialized
+      setTimeout(() => {
+        testFirestoreConnection()
+          .then((result) => {
+            if (result.success) {
+              console.log(
+                `[Firestore Test] ✅ Sanity test passed!`
+              );
+              console.log(
+                `[Firestore Test] Document ID: ${result.docId}`
+              );
+              console.log(
+                `[Firestore Test] Collection: ${result.collection}`
+              );
+              console.log(
+                `[Firestore Test] Read-back data:`,
+                result.readData
+              );
+            } else {
+              console.error(
+                `[Firestore Test] ❌ Sanity test failed!`
+              );
+              console.error(
+                `[Firestore Test] Error: ${result.error}`
+              );
+              if (result.errorCode) {
+                console.error(
+                  `[Firestore Test] Error Code: ${result.errorCode}`
+                );
+              }
+              if (result.errorDetails) {
+                console.error(
+                  `[Firestore Test] Error Details:`,
+                  result.errorDetails
+                );
+              }
+            }
+          })
+          .catch((err) => {
+            console.error("[Firestore Test] ❌ Unexpected error:", err);
+          });
+      }, 1000);
+    })
+    .catch((importError) => {
+      console.error("[Firestore Test] ❌ Failed to import test module:", importError);
+      console.error("[Firestore Test] This may indicate:", {
+        fileNotFound: "Check that src/services/firebaseTest.js exists",
+        syntaxError: "Check for syntax errors in firebaseTest.js",
+        moduleError: "Check that testFirestoreConnection is exported correctly",
+        errorMessage: importError.message,
+        errorStack: importError.stack,
+      });
+    });
+}
+
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query-client";
 

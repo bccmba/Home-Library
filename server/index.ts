@@ -57,12 +57,29 @@ function setupCors(app: express.Application) {
       isDevelopment || (origin && origins.has(origin));
 
     if (shouldAllowOrigin) {
+      let allowedOrigin: string | undefined;
+      
       if (origin && origins.has(origin)) {
-        res.header("Access-Control-Allow-Origin", origin);
-      } else if (isDevelopment) {
+        // Origin is in our allowed set
+        allowedOrigin = origin;
+      } else if (isDevelopment && origin) {
         // In dev, allow the requesting origin even if not in our set
-        res.header("Access-Control-Allow-Origin", origin || "*");
+        allowedOrigin = origin;
+      } else if (isDevelopment) {
+        // In dev, if no origin header, use wildcard (but can't use credentials)
+        allowedOrigin = "*";
       }
+
+      if (allowedOrigin) {
+        res.header("Access-Control-Allow-Origin", allowedOrigin);
+        
+        // Only set credentials when NOT using wildcard origin
+        // Browsers reject credentials with wildcard origins per CORS spec
+        if (allowedOrigin !== "*") {
+          res.header("Access-Control-Allow-Credentials", "true");
+        }
+      }
+      
       res.header(
         "Access-Control-Allow-Methods",
         "GET, POST, PUT, DELETE, PATCH, OPTIONS",
@@ -71,7 +88,6 @@ function setupCors(app: express.Application) {
         "Access-Control-Allow-Headers",
         "Content-Type, Authorization",
       );
-      res.header("Access-Control-Allow-Credentials", "true");
     }
 
     if (req.method === "OPTIONS") {
