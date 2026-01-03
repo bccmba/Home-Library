@@ -101,7 +101,7 @@ export async function apiRequest(
           `\n2. Verify server is listening on port 3000 (check server console)` +
           `\n3. Test connectivity: curl ${API_BASE_URL}/api/shelves` +
           `\n4. Check firewall allows port 3000` +
-          `\n5. Verify EXPO_PUBLIC_DOMAIN=http://192.168.68.63:3000 in .env` +
+          `\n5. Verify EXPO_PUBLIC_DOMAIN=${API_BASE_URL} in .env` +
           `\n6. Ensure device and computer are on the same WiFi network` +
           `\n7. Try accessing ${url.toString()} in a browser on your device` +
           `\n\nAttempted URL: ${url.toString()}`
@@ -183,7 +183,7 @@ export const getQueryFn: <T>(options: {
             `\n2. Verify server is listening on port 3000 (check server console)` +
             `\n3. Test connectivity: curl ${API_BASE_URL}/api/shelves` +
             `\n4. Check firewall allows port 3000` +
-            `\n5. Verify EXPO_PUBLIC_DOMAIN=http://192.168.68.63:3000 in .env` +
+            `\n5. Verify EXPO_PUBLIC_DOMAIN=${API_BASE_URL} in .env` +
             `\n6. Ensure device and computer are on the same WiFi network` +
             `\n7. Try accessing ${url.toString()} in a browser on your device` +
             `\n\nAttempted URL: ${url.toString()}`

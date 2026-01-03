@@ -149,6 +149,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Health check endpoint for connectivity testing
+  app.get("/api/health", (_req, res) => {
+    res.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      server: "running",
+      port: process.env.PORT || "3000",
+    });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

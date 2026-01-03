@@ -11,6 +11,19 @@ import {
   FIREBASE_MEASUREMENT_ID,
 } from "@env";
 
+// Debug: Log environment variable status (only in dev mode)
+if (__DEV__) {
+  console.log("[Firebase] Environment variable status:", {
+    FIREBASE_API_KEY: FIREBASE_API_KEY ? "✓ Set" : "✗ Missing",
+    FIREBASE_AUTH_DOMAIN: FIREBASE_AUTH_DOMAIN ? "✓ Set" : "✗ Missing",
+    FIREBASE_PROJECT_ID: FIREBASE_PROJECT_ID ? "✓ Set" : "✗ Missing",
+    FIREBASE_STORAGE_BUCKET: FIREBASE_STORAGE_BUCKET ? "✓ Set" : "✗ Missing",
+    FIREBASE_MESSAGING_SENDER_ID: FIREBASE_MESSAGING_SENDER_ID ? "✓ Set" : "✗ Missing",
+    FIREBASE_APP_ID: FIREBASE_APP_ID ? "✓ Set" : "✗ Missing",
+    FIREBASE_MEASUREMENT_ID: FIREBASE_MEASUREMENT_ID ? "✓ Set" : "✗ Missing (optional)",
+  });
+}
+
 // Validate required environment variables
 const requiredEnvVars = {
   FIREBASE_API_KEY,
@@ -22,14 +35,30 @@ const requiredEnvVars = {
 };
 
 const missingVars = Object.entries(requiredEnvVars)
-  .filter(([key, value]) => !value)
+  .filter(([key, value]) => {
+    // Check if value is undefined, null, or empty string
+    return value === undefined || value === null || value === "";
+  })
   .map(([key]) => key);
 
 if (missingVars.length > 0) {
-  throw new Error(
-    `Missing required Firebase environment variables: ${missingVars.join(", ")}. ` +
-    `Please set them in your .env file.`
-  );
+  const missingList = missingVars.join(", ");
+  const errorMessage = 
+    `Missing required Firebase environment variables: ${missingList}. ` +
+    `\n\nPlease add these to your .env file in the project root:` +
+    `\nFIREBASE_API_KEY=your_api_key` +
+    `\nFIREBASE_AUTH_DOMAIN=your_auth_domain` +
+    `\nFIREBASE_PROJECT_ID=your_project_id` +
+    `\nFIREBASE_STORAGE_BUCKET=your_storage_bucket` +
+    `\nFIREBASE_MESSAGING_SENDER_ID=your_sender_id` +
+    `\nFIREBASE_APP_ID=your_app_id` +
+    `\nFIREBASE_MEASUREMENT_ID=your_measurement_id (optional)` +
+    `\n\nAfter adding variables, restart Metro bundler with: npm start -- --clear`;
+  
+  console.error("[Firebase] Configuration Error:");
+  console.error(errorMessage);
+  
+  throw new Error(errorMessage);
 }
 
 // Firebase configuration object

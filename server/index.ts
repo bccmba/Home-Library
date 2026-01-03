@@ -41,7 +41,7 @@ function setupCors(app: express.Application) {
     if (process.env.EXPO_PUBLIC_DOMAIN) {
       try {
         const apiUrl = new URL(process.env.EXPO_PUBLIC_DOMAIN);
-        // Extract the origin from EXPO_PUBLIC_DOMAIN (e.g., http://192.168.68.63:3000)
+        // Extract the origin from EXPO_PUBLIC_DOMAIN (e.g., http://YOUR_IP_ADDRESS:3000)
         origins.add(apiUrl.origin);
       } catch (e) {
         // If EXPO_PUBLIC_DOMAIN is not a valid URL, ignore
@@ -279,27 +279,21 @@ function setupErrorHandler(app: express.Application) {
   });
 }
 
-(async () => {
-  setupCors(app);
-  setupBodyParsing(app);
-  setupRequestLogging(app);
+// Setup middleware
+setupCors(app);
+setupBodyParsing(app);
+setupRequestLogging(app);
 
-  // Register API routes before static file handling
-  const server = await registerRoutes(app);
-
+// Register API routes before static file handling
+// Note: registerRoutes is async, but we initialize it here
+// The server instance is created but not bound to a port
+// Expo dev server will handle port binding
+registerRoutes(app).then(() => {
   configureExpoAndLanding(app);
-
   setupErrorHandler(app);
+}).catch((err) => {
+  console.error("Failed to register routes:", err);
+});
 
-  const port = parseInt(process.env.PORT || "3000", 10);
-  server.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`express server serving on port ${port}`);
-    },
-  );
-})();
+// Export the Express app as default for Expo dev server integration
+export default app;
